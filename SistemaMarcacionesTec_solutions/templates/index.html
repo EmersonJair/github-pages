@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Marcaciones CITE</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-md p-8 w-96">
+        <header class="text-center mb-6">
+            <img src="URL_DEL_LOGO" alt="Logo CITE" class="mx-auto h-20">
+            <h1 class="text-2xl font-semibold text-gray-800">Sistema de Marcaciones CITE</h1>
+            <p class="text-gray-600">Centro de Intervención de las Telecomunicaciones</p>
+        </header>
+
+        <div class="bg-gray-300 rounded-lg p-4">
+            <img src="URL_DE_IMAGEN_DE_FONDO" alt="Imagen de fondo" class="mx-auto mb-4">
+            <form id="login-form" action="/login" method="post">
+                <select class="w-full p-2 rounded border border-gray-400 mb-4">
+                    <option>-- Seleccione Institución --</option>
+                </select>
+                <input type="text" id="id_dui" name="id_dui" placeholder="Número de Carnet o su ONI" class="w-full p-2 rounded border border-gray-400 mb-4">
+                <input type="password" id="password" name="password" placeholder="Contraseña" class="w-full p-2 rounded border border-gray-400 mb-4">
+                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">ENTRAR</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita que el formulario se envíe de forma predeterminada
+            
+            const id_dui = document.getElementById('id_dui').value;
+            const password = document.getElementById('password').value;
+
+            // Aquí puedes agregar la lógica de validación del lado del cliente
+            if (!id_dui || !password) {
+                alert('Por favor, complete todos los campos.');
+                return;
+            }
+
+            // Enviar los datos al servidor para la validación
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id_dui: id_dui, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/dashboard'; // Redirigir al dashboard
+                } else {
+                    alert(data.message); // Mostrar mensaje de error
+                }
+            });
+        });
+    </script>
+</body>
+</html>

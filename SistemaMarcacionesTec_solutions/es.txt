@@ -1,0 +1,22 @@
+├── app/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── routes.py
+│   └── utils.py
+├── templates/
+│   ├── dashboard.html
+│   ├── consultar_marcaciones.html
+│   └── login.html
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── script.js
+│   └── img/
+│       ├── logo.png
+│       ├── inicio_jornada.png
+│       ├── salida_almuerzo.png
+│       ├── entrada_almuerzo.png
+│       └── fin_jornada.png
+├── config.py
+└── run.py

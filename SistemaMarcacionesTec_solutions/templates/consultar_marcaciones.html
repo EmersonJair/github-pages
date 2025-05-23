@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Marcaciones Tec_solutions - Consultar Marcaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto py-8">
+        <!-- Encabezado -->
+        <header class="text-center mb-8">
+            <img src="URL_DEL_LOGO" alt="Logo Tec_solutions" class="mx-auto h-20">
+            <h1 class="text-3xl font-semibold text-gray-800">Sistema de Marcaciones Tec_solutions</h1>
+            <p class="text-gray-600">Centro de Intervención de las Telecomunicaciones</p>
+        </header>
+
+        <!-- Información del usuario y filtros -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="URL_DE_IMAGEN_DE_PERFIL" alt="Imagen de perfil" class="w-20 h-20 rounded-full mr-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800" id="nombre-usuario">Nombre del Usuario</h2>
+                    <p class="text-gray-600" id="categoria-usuario">Categoría: MARCA</p>
+                    <p class="text-gray-600" id="institucion-usuario">Institución: FGR</p>
+                    <p class="text-gray-600" id="carnet-usuario">Carnet/ONI: 4286</p>
+                    <div class="mt-2">
+                        <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mr-2">SALIR</button>
+                        <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">INICIO</button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <label for="desde" class="mr-2">Desde:</label>
+                <input type="date" id="desde" class="border border-gray-400 rounded px-2 py-1 mr-4">
+                <label for="hasta" class="mr-2">Hasta:</label>
+                <input type="date" id="hasta" class="border border-gray-400 rounded px-2 py-1 mr-4">
+                <button id="buscar-marcaciones" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">Buscar</button>
+                <button class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Exportar</button>
+            </div>
+        </div>
+
+        <!-- Tabla de marcaciones -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-lg shadow-md">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="px-4 py-2 text-left">Nombre</th>
+                        <th class="px-4 py-2 text-left">Fecha</th>
+                        <th class="px-4 py-2 text-left">Día</th>
+                        <th class="px-4 py-2 text-left">H1</th>
+                        <th class="px-4 py-2 text-left">H2</th>
+                        <th class="px-4 py-2 text-left">H3</th>
+                        <th class="px-4 py-2 text-left">H4</th>
+                        <th class="px-4 py-2 text-left">Comentario</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-marcaciones">
+                    <!-- Las filas se agregarán aquí dinámicamente con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener datos del usuario desde el servidor
+            fetch('/obtener_datos_usuario')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('nombre-usuario').textContent = data.nombre;
+                    document.getElementById('categoria-usuario').textContent = 'Categoría: ' + data.categoria;
+                    document.getElementById('institucion-usuario').textContent = 'Institución: ' + data.institucion;
+                    document.getElementById('carnet-usuario').textContent = 'Carnet/ONI: ' + data.carnet;
+                });
+
+            const buscarMarcacionesButton = document.getElementById('buscar-marcaciones');
+            const tablaMarcacionesBody = document.getElementById('tabla-marcaciones');
+
+            buscarMarcacionesButton.addEventListener('click', function() {
+                const desde = document.getElementById('desde').value;
+                const hasta = document.getElementById('hasta').value;
+
+                // Enviar la solicitud al servidor para obtener las marcaciones
+                fetch('/obtener_marcaciones?desde=' + desde + '&hasta=' + hasta)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Limpiar la tabla antes de agregar las nuevas filas
+                        tablaMarcacionesBody.innerHTML = '';
+
+                        // Agregar las filas a la tabla
+                        data.forEach(marcacion => {
+                            const fila = document.createElement('tr');
+                            fila.innerHTML = `
+                                <td class="px-4 py-2">${data.nombre}</td>
+                                <td class="px-4 py-2">${marcacion.fecha}</td>
+                                <td class="px-4 py-2">${obtenerDiaDeLaSemana(marcacion.fecha)}</td>
+                                <td class="px-4 py-2">${marcacion.inicio_jornada || '00:00:00'}</td>
+                                <td class="px-4 py-2">${marcacion.salida_almuerzo || '00:00:00'}</td>
+                                <td class="px-4 py-2">${marcacion.entrada_almuerzo || '00:00:00'}</td>
+                                <td class="px-4 py-2">${marcacion.fin_jornada || '00:00:00'}</td>
+                                <td class="px-4 py-2"><button class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">💬</button></td>
+                            `;
+                            tablaMarcacionesBody.appendChild(fila);
+                        });
+                    });
+            });
+
+            // Función para obtener el día de la semana
+            function obtenerDiaDeLaSemana(fecha) {
+                const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                const fechaObj = new Date(fecha);
+                const diaIndex = fechaObj.getDay();
+                return dias[diaIndex];
+            }
+        });
+    </script>
+</body>
+</html>

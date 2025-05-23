@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Marcaciones Tec_solutions - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto py-8">
+        <!-- Encabezado -->
+        <header class="text-center mb-8">
+            <img src="URL_DEL_LOGO" alt="Logo Tec_solutions" class="mx-auto h-20">
+            <h1 class="text-3xl font-semibold text-gray-800">Sistema de Marcaciones Tec_solutions</h1>
+            <p class="text-gray-600">Centro de Intervención de las Telecomunicaciones</p>
+        </header>
+
+        <!-- Información del usuario -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8 flex items-center">
+            <img src="URL_DE_IMAGEN_DE_PERFIL" alt="Imagen de perfil" class="w-20 h-20 rounded-full mr-4">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800" id="nombre-usuario">Nombre del Usuario</h2>
+                <p class="text-gray-600" id="categoria-usuario">Categoría: MARCA</p>
+                <p class="text-gray-600" id="institucion-usuario">Institución: FGR</p>
+                <p class="text-gray-600" id="carnet-usuario">Carnet/ONI: 4286</p>
+                <div class="mt-2">
+                    <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mr-2">SALIR</button>
+                    <button id="consultar-marcaciones" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">CONSULTAR MARCACIONES</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fecha y hora actual -->
+        <div class="text-right text-blue-500 mb-8" id="fecha-hora-actual">
+            FECHA: 21/05/2025 08:08:14
+        </div>
+
+        <!-- Marcaciones -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Inicio de Jornada -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <img src="URL_IMAGEN_INICIO_JORNADA" alt="Inicio de Jornada" class="mx-auto h-20 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 text-center">Inicio Jornada</h3>
+                <p id="inicio-jornada-hora" class="text-gray-600 text-center">Hora de marcación: 00:00:00</p>
+                <button data-marcacion="inicio_jornada" class="marcar-button w-full bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 mt-2">Marcar</button>
+            </div>
+
+            <!-- Salida Almuerzo -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <img src="URL_IMAGEN_SALIDA_ALMUERZO" alt="Salida Almuerzo" class="mx-auto h-20 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 text-center">Salida Almuerzo</h3>
+                <p id="salida-almuerzo-hora" class="text-gray-600 text-center">Hora de marcación: 00:00:00</p>
+                <button data-marcacion="salida_almuerzo" class="marcar-button w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2">Marcar</button>
+            </div>
+
+            <!-- Entrada Almuerzo -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <img src="URL_IMAGEN_ENTRADA_ALMUERZO" alt="Entrada Almuerzo" class="mx-auto h-20 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 text-center">Entrada Almuerzo</h3>
+                <p id="entrada-almuerzo-hora" class="text-gray-600 text-center">Hora de marcación: 00:00:00</p>
+                <button data-marcacion="entrada_almuerzo" class="marcar-button w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2">Marcar</button>
+            </div>
+
+            <!-- Fin de Jornada -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <img src="URL_IMAGEN_FIN_JORNADA" alt="Fin de Jornada" class="mx-auto h-20 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800 text-center">Fin de Jornada</h3>
+                <p id="fin-jornada-hora" class="text-gray-600 text-center">Hora de marcación: 00:00:00</p>
+                <button data-marcacion="fin_jornada" class="marcar-button w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2">Marcar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener datos del usuario desde el servidor
+            fetch('/obtener_datos_usuario')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('nombre-usuario').textContent = data.nombre;
+                    document.getElementById('categoria-usuario').textContent = 'Categoría: ' + data.categoria;
+                    document.getElementById('institucion-usuario').textContent = 'Institución: ' + data.institucion;
+                    document.getElementById('carnet-usuario').textContent = 'Carnet/ONI: ' + data.carnet;
+                });
+
+            // Actualizar fecha y hora actual cada segundo
+            function actualizarFechaHora() {
+                const ahora = new Date();
+                const fecha = ahora.toLocaleDateString();
+                const hora = ahora.toLocaleTimeString();
+                document.getElementById('fecha-hora-actual').textContent = 'FECHA: ' + fecha + ' ' + hora;
+            }
+            actualizarFechaHora();
+            setInterval(actualizarFechaHora, 1000);
+
+            const marcarButtons = document.querySelectorAll('.marcar-button');
+            const consultarMarcacionesButton = document.getElementById('consultar-marcaciones');
+
+            marcarButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const marcacion = this.dataset.marcacion;
+                    const ahora = new Date();
+                    const hora = ahora.toLocaleTimeString();
+
+                    // Congelar la hora y mostrarla en la interfaz
+                    const horaElementId = marcacion.replace('_', '-') + '-hora';
+                    const horaElement = document.getElementById(horaElementId);
+                    horaElement.textContent = 'Hora de marcación: ' + hora;
+
+                    // Enviar la marcación y la hora al servidor
+                    fetch('/marcar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ marcacion: marcacion, hora: hora })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Marcación registrada con éxito');
+                        } else {
+                            alert('Error al registrar la marcación');
+                        }
+                    });
+
+                    // Deshabilitar el botón después de marcar
+                    button.disabled = true;
+                    button.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'bg-gray-400', 'hover:bg-gray-500');
+                    button.classList.add('bg-gray-300', 'cursor-not-allowed');
+                });
+            });
+
+            consultarMarcacionesButton.addEventListener('click', function() {
+                window.location.href = '/consultar_marcaciones';
+            });
+        });
+    </script>
+</body>
+</html>
